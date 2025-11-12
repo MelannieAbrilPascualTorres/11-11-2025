@@ -35,8 +35,9 @@ def search():
         else:
             flash(f'Pokemon "{ pokemon_name }" no encontrado', 'error')
             return redirect(url_for('index'))
-    except requests.exceptions.RequestException:
-        print("ayuda no se dividir")
+    except requests.exceptions.RequestException as e:
+        flash('Error al buscar el Pokemon', 'error')
+        return redirect(url_for('index'))
         
 
 if __name__ == "__main__":
