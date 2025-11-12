@@ -1,26 +1,41 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+import requests
 
-POKEAI ="https://pokeapi.co/api/v2/pokemon/"
+POKEAPI ="https://pokeapi.co/api/v2/pokemon/"
 app = Flask(__name__)
-app.secret_key = "en_el_año_sie_dos"
+app.secret_key = "en_el_año_sie_dos_sesenta_paz"
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/search', methods="POST")
+@app.route('/search', methods=["POST"])
 def search():
     pokemon_name = request.form.get('poke', '').strip().lower()
+
     if not pokemon_name:
         flash('Ingrese un pokemon', 'error')
         return redirect(url_for('index'))
-    resp = request.get(f"{API}{pokemon_name}")
+    
+    resp = requests.get(f"{POKEAPI}{pokemon_name}")
     
     if resp.status_code == 200:
         pokemon_data = resp.json()
-        return render_template('pokemon.html', pokemon=pokemon_data)
 
-
+        pokemon_info = {
+            'name': pokemon_data['name'].title(),
+            'id': pokemon_data['id'],
+            'height': pokemon_data['height'] / 10,
+            'weight': pokemon_data['weight'] / 10,
+            'sprite': pokemon_data['sprites']['front_default'],
+            'types': [t['type']['name'].title() for t in pokemon_data['types']],
+            'abilities': [a['ability']['name'].title() for a in pokemon_data['abilities']],
+            'stats': {}
+        }
+        return render_template('pokemon.html', pokemon=pokemon_info)
+    else:
+        flash('No se encontro el Pokemon', 'error')
+        return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True)
