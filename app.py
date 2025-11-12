@@ -38,7 +38,6 @@ def search():
     except requests.exceptions.RequestException as e:
         flash('Error al buscar el Pokemon', 'error')
         return redirect(url_for('index'))
-        
 
 if __name__ == "__main__":
     app.run(debug=True)
